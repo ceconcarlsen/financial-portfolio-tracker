@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:13
+    container_name: portfolio-tracker-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: portfolio_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - portfolio-db-data:/var/lib/postgresql/data
+    networks:
+      - portfolio-tracker-net
+
+volumes:
+  portfolio-db-data:
+
+
+networks:
+  portfolio-tracker-net:
+    driver: bridge

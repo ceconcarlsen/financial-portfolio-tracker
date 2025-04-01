@@ -1,0 +1,26 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Portfolio {
+  id           Int     @id @default(autoincrement())
+  name         String
+  initialValue Float
+  trades       Trade[]
+}
+
+model Trade {
+  id          Int       @id @default(autoincrement())
+  ticker      String
+  entryPrice  Float
+  exitPrice   Float
+  quantity    Int
+  date        DateTime
+  portfolioId Int
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id])
+}
