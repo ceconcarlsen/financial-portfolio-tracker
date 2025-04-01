@@ -8,7 +8,7 @@
 
 ``` npx prisma generate ``` -> Import prisma client
 
-``` npx prisma migrate dev``` -> Create migration
+``` npx prisma migrate dev ``` -> Create migration
 
 ``` pnpm run dev ``` -> To run the project
 
