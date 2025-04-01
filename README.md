@@ -2,11 +2,15 @@
 
 ### **How to run**
 
-```docker compose up``` -> Runs the docker-compose.yml for database the enviroment
+```docker compose up``` -> Runs the docker-compose.yml for database the environment
 
-``` yarn ``` -> To install dependencies
+``` pnpm install ``` -> To install dependencies
 
-``` yarn run dev ``` -> To run the project
+``` npx prisma generate ``` -> Import prisma client
+
+``` npx prisma migrate dev``` -> Create migration
+
+``` pnpm run dev ``` -> To run the project
 
 
 ### **Postman Collection**
