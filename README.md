@@ -1,6 +1,12 @@
 # Financial Portfolio Tracker API
 
-### 
+### **How to run**
+
+```docker compose up``` -> Runs the docker-compose.yml for database the enviroment
+
+``` yarn ``` -> To install dependencies
+
+``` yarn run dev ``` -> To run the project
 
 
 ### **Postman Collection**
