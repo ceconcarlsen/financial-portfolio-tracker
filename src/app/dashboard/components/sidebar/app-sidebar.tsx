@@ -6,8 +6,8 @@ import SidebarBrandHeader from "./sidebar-header";
 import SidebarNavigation from "./sidebar-navigation";
 
 const user = {
-  name: "shadcn",
-  email: "m@example.com",
+  name: "Gabriel Cecon",
+  email: "ceconcarlsen@gmail.com",
   avatar: "",
 };
 

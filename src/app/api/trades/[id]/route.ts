@@ -3,13 +3,13 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function PATCH(req: Request, { params }: { params: { id: number } }) {
+export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   try {
     const { id } = params;
     const { ticker, entryPrice, exitPrice, quantity, date } = await req.json();
 
     const updatedTrade = await prisma.trade.update({
-      where: { id },
+      where: { id: parseInt(id) },
       data: {
         ticker,
         entryPrice: parseFloat(entryPrice),
@@ -25,12 +25,12 @@ export async function PATCH(req: Request, { params }: { params: { id: number } }
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: number } }) {
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   try {
     const { id } = params;
 
     await prisma.trade.delete({
-      where: { id },
+      where: { id: parseInt(id) },
     });
 
     return NextResponse.json({ message: "Trade deleted" });

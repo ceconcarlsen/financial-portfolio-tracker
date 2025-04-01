@@ -2,13 +2,10 @@
 
 import { usePathname } from "next/navigation";
 
-import { House } from "lucide-react";
-
 import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
@@ -21,11 +18,7 @@ export default function SidebarBreadcrumbs() {
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        <BreadcrumbItem className="hidden md:block">
-          <BreadcrumbLink href="/dashboard/profile">
-            <House className="size-4 text-gray-500" />
-          </BreadcrumbLink>
-        </BreadcrumbItem>
+        <BreadcrumbItem className="hidden md:block"></BreadcrumbItem>
         <BreadcrumbSeparator className="hidden text-gray-400 md:block" />
         <BreadcrumbItem>
           <BreadcrumbPage>

@@ -3,33 +3,35 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function PATCH(req: Request, { params }: { params: { id: number } }) {
+export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   try {
     const { id } = params;
     const { name, initialValue } = await req.json();
 
     const updatedPortfolio = await prisma.portfolio.update({
-      where: { id },
+      where: { id: parseInt(id) },
 
       data: { name, initialValue: parseFloat(initialValue) },
     });
 
     return NextResponse.json(updatedPortfolio);
   } catch (error) {
+    console.log(error);
     return NextResponse.json({ error: "Failed to update portfolio", }, { status: 500 });
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: number } }) {
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   try {
     const { id } = params;
 
     await prisma.portfolio.delete({
-      where: { id },
+      where: { id: parseInt(id) },
     });
 
     return NextResponse.json({ message: "Portfolio deleted" });
   } catch (error) {
+    console.log(error)
     return NextResponse.json({ error: "Failed to delete portfolio" }, { status: 500 });
   }
 }
