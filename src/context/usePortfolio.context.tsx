@@ -10,8 +10,9 @@ export const portfolioSchema = z
       .max(100, { message: "Portfolio name must not exceed 100 characters" }),
     initialValue: z
       .number({ invalid_type_error: "Initial value must be a number" })
-      .min(0, { message: "Initial value must be at least 0" })
+      .min(0, { message: "Initial value must be at least 0" }),
   })
+  .nullable();
 
 export type Portfolio = z.infer<typeof portfolioSchema>;
 
@@ -25,13 +26,8 @@ const PortfolioContext = createContext<PortfolioContextType | undefined>(undefin
 export const PortfolioProvider = ({ children }: { children: ReactNode }) => {
   const [activePortfolio, setActivePortfolioState] = useState<Portfolio | null>(null);
 
-  const setActivePortfolio = (portfolio: Portfolio) => {
-    const result = portfolioSchema.safeParse(portfolio);
-    if (!result.success) {
-      console.error("Invalid portfolio data:", result.error.format());
-      return;
-    }
-    setActivePortfolioState(result.data);
+  const setActivePortfolio = (portfolio: Portfolio | null) => {
+    setActivePortfolioState(portfolio);
   };
 
   return (

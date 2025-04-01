@@ -19,6 +19,7 @@ import Chart from "@/components/chart";
 export default function Page() {
   const { openModal: openTradeModal } = useQueryParamsModal("tradeModal");
   const { openModal: openPortfolioModal } = useQueryParamsModal("portfolioModal");
+
   const { data: portfolios, isLoading } = useGetPortfolios();
   const { mutate: deletePortfolio } = useDeletePortfolio();
   const { activePortfolio, setActivePortfolio } = usePortfolio();
@@ -26,6 +27,7 @@ export default function Page() {
   const { data: trades, isLoading: isLoadingTrades } = useGetTrades();
   const { mutate: deleteTrade } = useDeleteTrade();
   const { setActiveTrade, activeTrade } = useTrade();
+
 
   useEffect(() => {
     if (activePortfolio) {
@@ -101,7 +103,7 @@ export default function Page() {
                   <CreditCard className="size-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">+12,234</div>
+                  <div className="text-2xl font-bold">{trades?.length}</div>
                   <p className="text-xs text-muted-foreground">+19% from last month</p>
                 </CardContent>
               </Card>

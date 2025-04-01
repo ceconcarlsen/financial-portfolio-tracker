@@ -1,5 +1,8 @@
 # Financial Portfolio Tracker API
 
+### 
+
+
 ### **Postman Collection**
 
 1. **Portfolio API**:
@@ -13,6 +16,9 @@
    - `POST /api/trades`: Create a new trade.
    - `PATCH /api/trades/{id}`: Update an existing trade.
    - `DELETE /api/trades/{id}`: Delete a trade.
+
+3. **Chart API**:
+   - `GET /api/chart`: Fetch all trades for a specific portfolio.
 
 ### **Postman Collection JSON**
 
@@ -103,6 +109,14 @@
         "url": "http://localhost:3000/api/trades/{id}"
       },
       "response": []
-    }
+    },
+    {
+      "name": "GET /api/chart",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/api/chart"
+      },
+      "response": []
+    },
   ]
 }
