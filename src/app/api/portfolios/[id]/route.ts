@@ -21,9 +21,19 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_: Request, { params }: { params: { id: string } }) {
   try {
     const { id } = params;
+
+    const relatedTrades = await prisma.trade.findMany({
+      where: { portfolioId: parseInt(id) },
+    });
+    
+    if (relatedTrades.length > 0) {
+      await prisma.trade.deleteMany({
+      where: { portfolioId: parseInt(id) },
+      });
+    }
 
     await prisma.portfolio.delete({
       where: { id: parseInt(id) },
@@ -31,7 +41,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
     return NextResponse.json({ message: "Portfolio deleted" });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return NextResponse.json({ error: "Failed to delete portfolio" }, { status: 500 });
   }
 }

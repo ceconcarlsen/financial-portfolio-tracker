@@ -60,6 +60,10 @@ export const useDeletePortfolio = () => {
       if (!res.ok) throw new Error("Failed to delete portfolio");
       return res.json();
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["portfolios"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["portfolios"] });
+      queryClient.invalidateQueries({ queryKey: ["trades"] });
+      queryClient.invalidateQueries({ queryKey: ["chartData"] });
+    },
   });
 };

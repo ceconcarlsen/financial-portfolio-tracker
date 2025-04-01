@@ -3,21 +3,17 @@
 import { useEffect } from "react";
 
 import { DollarSign, Users, CreditCard } from "lucide-react";
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { salesData, overviewChartData } from "@/constants/dummy-data";
 import { useQueryParamsModal } from "@/hooks/useQueryParamsModal";
 import { PortfolioModal } from "@/components/portfolio-modal";
 import { TradeModal } from "@/components/trade-modal";
 import { useDeletePortfolio, useGetPortfolios } from "@/services/portfolio.service";
-import { useToast } from "@/components/ui/use-toast";
 import { usePortfolio } from "@/context/usePortfolio.context";
 import { useDeleteTrade, useGetTrades } from "@/services/trade.service";
 import { useTrade } from "@/context/useTrade.context";
-import { useGetChartData } from "@/services/chart.service";
 import Chart from "@/components/chart";
 
 export default function Page() {
@@ -30,8 +26,6 @@ export default function Page() {
   const { data: trades, isLoading: isLoadingTrades } = useGetTrades();
   const { mutate: deleteTrade } = useDeleteTrade();
   const { setActiveTrade, activeTrade } = useTrade();
-
-  const { data: chartData } = useGetChartData();
 
   useEffect(() => {
     if (activePortfolio) {

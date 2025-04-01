@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const portfolioSchema = z
   .object({
-    id: z.number({ invalid_type_error: "Portfolio ID must be a number" }),
+    id: z.number({ invalid_type_error: "Portfolio ID must be a number" }).optional(),
     name: z
       .string()
       .min(1, { message: "Portfolio name is required" })
@@ -11,9 +11,7 @@ export const portfolioSchema = z
     initialValue: z
       .number({ invalid_type_error: "Initial value must be a number" })
       .min(0, { message: "Initial value must be at least 0" })
-      .nullable(),
   })
-  .nullable();
 
 export type Portfolio = z.infer<typeof portfolioSchema>;
 
