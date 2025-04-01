@@ -46,7 +46,7 @@ export const useCreateTrade = () => {
 export const useUpdateTrade = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...updates }: { id: number; ticker: string; entryPrice: number; exitPrice?: number; quantity: number; date: string }) => {
+    mutationFn: async ({ id, ...updates }: { id: number; portfolioId: number; ticker: string; entryPrice: number; exitPrice?: number; quantity: number; date: string }) => {
       const res = await fetch(`${API_URL}/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },

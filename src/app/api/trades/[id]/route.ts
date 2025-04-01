@@ -8,6 +8,14 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     const { id } = params;
     const { ticker, entryPrice, exitPrice, quantity, date } = await req.json();
 
+    const existingTrade = await prisma.trade.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (!existingTrade) {
+      return NextResponse.json({ error: "Trade not found" }, { status: 404 });
+    }
+
     const updatedTrade = await prisma.trade.update({
       where: { id: parseInt(id) },
       data: {
@@ -21,6 +29,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
     return NextResponse.json(updatedTrade);
   } catch (error) {
+    console.log(error)
     return NextResponse.json({ error: "Failed to update trade" }, { status: 500 });
   }
 }

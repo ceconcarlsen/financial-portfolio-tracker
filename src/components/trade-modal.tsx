@@ -9,24 +9,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useQueryParamsModal } from "@/hooks/useQueryParamsModal";
-import { useCreateTrade } from "@/services/trade.service";
+import { useCreateTrade, useUpdateTrade } from "@/services/trade.service";
 import { useGetPortfolios } from "@/services/portfolio.service";
+import { useEffect } from "react";
+import { useTrade } from "@/context/useTrade.context";
 
 const tradeSchema = z.object({
-  portfolioId: z.string().min(1, { message: "Please select a portfolio" }),
+  id: z.number(),
+  portfolioId: z.any(),
   ticker: z.string().min(1, { message: "Ticker is required" }),
-  entryPrice: z
-    .number()
-    .min(0, { message: "Entry price must be a positive number" }),
+  entryPrice: z.number().min(0, { message: "Entry price must be a positive number" }),
   exitPrice: z
     .number()
     .optional()
     .refine((value) => value === undefined || value >= 0, {
       message: "Exit price must be a positive number",
     }),
-  quantity: z
-    .number()
-    .min(1, { message: "Quantity must be at least 1" }),
+  quantity: z.number().min(1, { message: "Quantity must be at least 1" }),
   date: z
     .string()
     .min(1, { message: "Date is required" })
@@ -39,33 +38,53 @@ type TradeFormData = z.infer<typeof tradeSchema>;
 
 export function TradeModal() {
   const { isOpen, closeModal } = useQueryParamsModal("tradeModal");
-  const createTrade = useCreateTrade();
+
+  const { mutate: createTrade, isPending: isCreating } = useCreateTrade();
+  const { mutate: updateTrade, isPending: isUpdating } = useUpdateTrade();
+  
   const { data: portfolios, isLoading } = useGetPortfolios();
+  const { activeTrade, setActiveTrade } = useTrade();
 
   const {
     register,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<TradeFormData>({
     resolver: zodResolver(tradeSchema),
   });
 
   const onSubmit = (data: TradeFormData) => {
-    createTrade.mutate({ ...data, portfolioId: Number(data.portfolioId) }, { onSuccess: closeModal });
+    if (activeTrade) {
+      updateTrade(data, {
+        onSuccess: () => {
+          setActiveTrade(null);
+          closeModal();
+        },
+      });
+    } else {
+      createTrade({ ...data, portfolioId: Number(data.portfolioId) }, { onSuccess: closeModal });
+    }
   };
+
+  useEffect(() => {
+    if (activeTrade) {
+      reset({ ...(activeTrade as TradeFormData) });
+    }
+  }, [activeTrade, reset]);
 
   return (
     <Dialog open={isOpen} onOpenChange={closeModal}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Trade</DialogTitle>
+          <DialogTitle>{activeTrade ? "Edit Trade" : "Add Trade"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid gap-4">
             <div>
               <Label htmlFor="portfolio">Portfolio</Label>
-              <Select onValueChange={(value) => setValue("portfolioId", value)}>
+              <Select onValueChange={(value) => setValue("portfolioId", value)} defaultValue={activeTrade?.portfolioId}>
                 <SelectTrigger>
                   <SelectValue placeholder={isLoading ? "Loading portfolios..." : "Select a portfolio"} />
                 </SelectTrigger>
@@ -80,17 +99,17 @@ export function TradeModal() {
               {errors.portfolioId && <p className="text-red-500 text-sm">{errors.portfolioId.message}</p>}
             </div>
             <div>
-                <Label htmlFor="ticker">Ticker</Label>
-                <Input
-                  id="ticker"
-                  {...register("ticker", {
+              <Label htmlFor="ticker">Ticker</Label>
+              <Input
+                id="ticker"
+                {...register("ticker", {
                   setValueAs: (value) => value.toUpperCase(),
                   onChange: (e) => {
                     e.target.value = e.target.value.toUpperCase();
                   },
-                  })}
-                  placeholder="AAPL"
-                />
+                })}
+                placeholder="AAPL"
+              />
               {errors.ticker && <p className="text-red-500 text-sm">{errors.ticker.message}</p>}
             </div>
             <div>
@@ -126,8 +145,8 @@ export function TradeModal() {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={createTrade.isPending || isLoading}>
-              {createTrade.isPending ? "Saving..." : "Save"}
+            <Button type="submit" disabled={isCreating || isUpdating || isLoading}>
+              {isCreating || isUpdating ? "Saving..." : activeTrade ? "Edit" : "Save"}
             </Button>
           </DialogFooter>
         </form>

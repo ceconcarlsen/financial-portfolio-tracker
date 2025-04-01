@@ -28,7 +28,6 @@ export default function Page() {
   const { mutate: deleteTrade } = useDeleteTrade();
   const { setActiveTrade, activeTrade } = useTrade();
 
-
   useEffect(() => {
     if (activePortfolio) {
       openPortfolioModal();
@@ -121,7 +120,7 @@ export default function Page() {
                     {portfolios?.map((portfolio) => (
                       <div
                         key={portfolio.id}
-                        className={"flex items-center"}
+                        className="flex items-center hover:bg-slate-800 cursor-pointer p-4 transition-all duration-300 ease-in-out border rounded-lg-"
                         onClick={() => setActivePortfolio(portfolio)}
                       >
                         <p className="text-sm font-medium leading-none">{portfolio.id}</p>
@@ -170,7 +169,11 @@ export default function Page() {
                 <CardContent>
                   <div className="space-y-8">
                     {trades?.map((trade) => (
-                      <div key={trade.id} className={"flex items-center"} onClick={() => setActiveTrade(trade)}>
+                      <div
+                        key={trade.id}
+                        className="flex items-center hover:bg-slate-800 cursor-pointer p-4 transition-all duration-300 ease-in-out border rounded-lg-"
+                        onClick={() => setActiveTrade(trade)}
+                      >
                         <p className="text-sm font-medium leading-none">{trade.id}</p>
                         <div className="ml-4 space-y-1">
                           <p className="text-sm font-medium leading-none">{trade.ticker}</p>
