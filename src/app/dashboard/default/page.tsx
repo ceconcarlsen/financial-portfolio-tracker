@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
-import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
-import initials from "initials";
 import { DollarSign, Users, CreditCard } from "lucide-react";
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
@@ -17,6 +15,10 @@ import { TradeModal } from "@/components/trade-modal";
 import { useDeletePortfolio, useGetPortfolios } from "@/services/portfolio.service";
 import { useToast } from "@/components/ui/use-toast";
 import { usePortfolio } from "@/context/usePortfolio.context";
+import { useDeleteTrade, useGetTrades } from "@/services/trade.service";
+import { useTrade } from "@/context/useTrade.context";
+import { useGetChartData } from "@/services/chart.service";
+import Chart from "@/components/chart";
 
 export default function Page() {
   const { openModal: openTradeModal } = useQueryParamsModal("tradeModal");
@@ -25,13 +27,23 @@ export default function Page() {
   const { mutate: deletePortfolio } = useDeletePortfolio();
   const { activePortfolio, setActivePortfolio } = usePortfolio();
 
-  console.log("activePortfolio", activePortfolio);
+  const { data: trades, isLoading: isLoadingTrades } = useGetTrades();
+  const { mutate: deleteTrade } = useDeleteTrade();
+  const { setActiveTrade, activeTrade } = useTrade();
+
+  const { data: chartData } = useGetChartData();
 
   useEffect(() => {
     if (activePortfolio) {
       openPortfolioModal();
     }
   }, [activePortfolio]);
+
+  useEffect(() => {
+    if (activeTrade) {
+      openTradeModal();
+    }
+  }, [activeTrade]);
 
   const handlePortfolio = () => {
     if (activePortfolio) {
@@ -40,7 +52,12 @@ export default function Page() {
     openPortfolioModal();
   };
 
-  const { toast } = useToast();
+  const handleTrade = () => {
+    if (activeTrade) {
+      setActiveTrade(null);
+    }
+    openTradeModal();
+  };
 
   return (
     <div className="flex-col md:flex">
@@ -53,7 +70,7 @@ export default function Page() {
               <PortfolioModal />
             </div>
             <div className="flex">
-              <Button onClick={openTradeModal}>+ Trade</Button>
+              <Button onClick={handleTrade}>+ Trade</Button>
               <TradeModal />
             </div>
           </div>
@@ -108,12 +125,10 @@ export default function Page() {
                     {portfolios?.map((portfolio) => (
                       <div
                         key={portfolio.id}
-                        className={'flex items-center'}
+                        className={"flex items-center"}
                         onClick={() => setActivePortfolio(portfolio)}
                       >
-                        <Avatar className="size-9">
-                          <AvatarFallback>{initials(portfolio.name)}</AvatarFallback>
-                        </Avatar>
+                        <p className="text-sm font-medium leading-none">{portfolio.id}</p>
                         <div className="ml-4 space-y-1">
                           <p className="text-sm font-medium leading-none">{portfolio.name}</p>
                         </div>
@@ -123,7 +138,14 @@ export default function Page() {
                               portfolio.initialValue,
                             )}
                           </span>
-                          <Button variant="destructive" size="sm" onClick={() => deletePortfolio(portfolio.id)}>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deletePortfolio(portfolio.id);
+                            }}
+                          >
                             <span className="sr-only">Delete</span>
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -145,46 +167,57 @@ export default function Page() {
               <Card className="col-span-2 lg:col-span-3">
                 <CardHeader>
                   <CardTitle>Recent Trades</CardTitle>
-                  <CardDescription>You made 265 sales this month.</CardDescription>
+                  <CardDescription>
+                    {isLoadingTrades ? `...` : `You have ${trades?.length} trades in total.`}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-8">
-                    {salesData.map((sale) => (
-                      <div key={sale.name} className="flex items-center">
-                        <Avatar className="size-9">
-                          <AvatarFallback>{initials(sale.name)}</AvatarFallback>
-                        </Avatar>
+                    {trades?.map((trade) => (
+                      <div key={trade.id} className={"flex items-center"} onClick={() => setActiveTrade(trade)}>
+                        <p className="text-sm font-medium leading-none">{trade.id}</p>
                         <div className="ml-4 space-y-1">
-                          <p className="text-sm font-medium leading-none">{sale.name}</p>
-                          <p className="text-xs text-muted-foreground md:text-sm">{sale.email}</p>
+                          <p className="text-sm font-medium leading-none">{trade.ticker}</p>
                         </div>
-                        <div className="ml-auto font-medium">{sale.amount}</div>
+                        <div className="ml-auto flex items-center space-x-2">
+                          <span className="font-medium">
+                            {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
+                              trade.entryPrice,
+                            )}
+                          </span>
+                          <span className="font-medium">
+                            {new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
+                              trade.exitPrice || 0,
+                            )}
+                          </span>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteTrade(trade.id);
+                            }}
+                          >
+                            <span className="sr-only">Delete</span>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth={1.5}
+                              stroke="currentColor"
+                              className="w-4 h-4"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
                 </CardContent>
               </Card>
             </div>
-            <Card className="col-span-2 lg:col-span-4">
-              <CardHeader>
-                <CardTitle>Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="pl-2">
-                <ResponsiveContainer width="100%" height={350}>
-                  <BarChart data={overviewChartData}>
-                    <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis
-                      stroke="#888888"
-                      fontSize={12}
-                      tickLine={false}
-                      axisLine={false}
-                      tickFormatter={(value) => `$${value}`}
-                    />
-                    <Bar dataKey="total" fill="currentColor" radius={[4, 4, 0, 0]} className="fill-primary" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+            <Chart title="Portfolio Performance by Trade" />
           </TabsContent>
         </Tabs>
       </div>

@@ -5,15 +5,7 @@ const prisma = new PrismaClient();
 
 export async function GET(req: Request) {
   try {
-    const url = new URL(req.url);
-    const portfolioId = url.searchParams.get("portfolioId");
-
-    if (!portfolioId) {
-      return NextResponse.json({ error: "Missing portfolioId" }, { status: 400 });
-    }
-
     const trades = await prisma.trade.findMany({
-      where: { portfolioId: parseInt(portfolioId) },
       orderBy: { date: "asc" },
     });
 

@@ -80,8 +80,17 @@ export function TradeModal() {
               {errors.portfolioId && <p className="text-red-500 text-sm">{errors.portfolioId.message}</p>}
             </div>
             <div>
-              <Label htmlFor="ticker">Ticker</Label>
-              <Input id="ticker" {...register("ticker")} placeholder="AAPL" />
+                <Label htmlFor="ticker">Ticker</Label>
+                <Input
+                  id="ticker"
+                  {...register("ticker", {
+                  setValueAs: (value) => value.toUpperCase(),
+                  onChange: (e) => {
+                    e.target.value = e.target.value.toUpperCase();
+                  },
+                  })}
+                  placeholder="AAPL"
+                />
               {errors.ticker && <p className="text-red-500 text-sm">{errors.ticker.message}</p>}
             </div>
             <div>

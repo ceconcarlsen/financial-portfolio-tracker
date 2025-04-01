@@ -2,22 +2,32 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const API_URL = "/api/trades";
 
-export const useGetTrades = (portfolioId: number) => {
+export const useGetTrades = () => {
   return useQuery({
-    queryKey: ["trades", portfolioId],
-    queryFn: async () => {
-      const res = await fetch(`${API_URL}?portfolioId=${portfolioId}`);
+    queryKey: ["trades"],
+    queryFn: async (): Promise<
+      Array<{
+        id: number;
+        portfolioId: number;
+        ticker: string;
+        entryPrice: number;
+        exitPrice: number | null;
+        quantity: number;
+        date: string;
+        pnl: number;
+      }>
+    > => {
+      const res = await fetch(API_URL);
       if (!res.ok) throw new Error("Failed to fetch trades");
       return res.json();
     },
-    enabled: !!portfolioId,
   });
 };
 
 export const useCreateTrade = () => {
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (trade: { portfolioId: number; ticker: string; entryPrice: number; exitPrice?: number; quantity: number; date: string }) => {
+  return useMutation<any, unknown, { portfolioId: number; ticker: string; entryPrice: number; exitPrice?: number; quantity: number; date: string }>({
+    mutationFn: async (trade: { portfolioId: number; ticker: string; entryPrice: number; exitPrice?: number; quantity: number; date: string }): Promise<any> => {
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -26,8 +36,10 @@ export const useCreateTrade = () => {
       if (!res.ok) throw new Error("Failed to create trade");
       return res.json();
     },
-    onSuccess: (_, variables) =>
-      queryClient.invalidateQueries({ queryKey: ["trades", variables.portfolioId] }),
+    onSuccess: async (_, variables: { portfolioId: number }) => {
+      await queryClient.invalidateQueries('trades');
+      await queryClient.invalidateQueries('chartData');
+    },
   });
 };
 
@@ -43,8 +55,10 @@ export const useUpdateTrade = () => {
       if (!res.ok) throw new Error("Failed to update trade");
       return res.json();
     },
-    onSuccess: (_, variables) =>
-      queryClient.invalidateQueries({ queryKey: ["trades", variables.id] }),
+    onSuccess: async (_, variables: { portfolioId: number }) => {
+      await queryClient.invalidateQueries('trades');
+      await queryClient.invalidateQueries('chartData');
+    },
   });
 };
 
@@ -56,7 +70,9 @@ export const useDeleteTrade = () => {
       if (!res.ok) throw new Error("Failed to delete trade");
       return res.json();
     },
-    onSuccess: (_, variables) =>
-      queryClient.invalidateQueries({ queryKey: ["trades", variables] }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries('trades');
+      await queryClient.invalidateQueries('chartData');
+    },
   });
 };
